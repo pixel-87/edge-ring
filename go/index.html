@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edge Ring - Redirecting</title>
+  <meta name="robots" content="noindex">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 10pt;
+      background-color: #f6f6ef;
+      color: #222;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+    }
+
+    .box {
+      width: 100%;
+      max-width: 460px;
+      background-color: #f6f6ef;
+      border: 1px solid #dcdcd0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .header {
+      background-color: #ff6600;
+      padding: 4px 8px;
+      font-weight: bold;
+      color: #222;
+      font-size: 10pt;
+    }
+
+    .content {
+      padding: 16px;
+    }
+
+    .status {
+      font-size: 10pt;
+      margin-bottom: 10px;
+    }
+
+    .target-url {
+      font-family: monospace;
+      font-size: 8.5pt;
+      background: #eaeaea;
+      padding: 6px;
+      border: 1px solid #ccc;
+      word-break: break-all;
+      margin-bottom: 14px;
+    }
+
+    a.btn {
+      display: inline-block;
+      background: #ff6600;
+      color: #fff;
+      text-decoration: none;
+      padding: 4px 10px;
+      font-size: 9pt;
+      font-weight: bold;
+    }
+
+    a.btn:hover {
+      background: #e65c00;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="header">⚡ Edge Ring Router</div>
+    <div class="content">
+      <div class="status" id="status">Redirecting to next member site...</div>
+      <div class="target-url" id="target" style="display: none;"></div>
+      <a href="../" id="action-btn" class="btn" style="display: none;">Go to Directory</a>
+    </div>
+  </div>
+
+  <script>
+    (async function navigate() {
+      const statusEl = document.getElementById('status');
+      const targetEl = document.getElementById('target');
+      const btnEl = document.getElementById('action-btn');
+
+      const params = new URLSearchParams(window.location.search);
+      const memberId = (params.get('member') || '').trim().toLowerCase();
+      const dir = (params.get('dir') || 'next').trim().toLowerCase();
+
+      try {
+        const res = await fetch('../members.json');
+        if (!res.ok) throw new Error('Could not fetch members list');
+        const members = await res.json();
+
+        if (!Array.isArray(members) || members.length === 0) {
+          throw new Error('Webring directory is empty.');
+        }
+
+        let currentIndex = members.findIndex(m => String(m.id).toLowerCase() === memberId);
+        let targetIndex = 0;
+
+        if (currentIndex === -1) {
+          targetIndex = dir === 'random' ? Math.floor(Math.random() * members.length) : 0;
+        } else {
+          if (dir === 'prev' || dir === 'previous') {
+            targetIndex = (currentIndex - 1 + members.length) % members.length;
+          } else if (dir === 'random') {
+            if (members.length > 1) {
+              do {
+                targetIndex = Math.floor(Math.random() * members.length);
+              } while (targetIndex === currentIndex);
+            } else {
+              targetIndex = 0;
+            }
+          } else {
+            targetIndex = (currentIndex + 1) % members.length;
+          }
+        }
+
+        const targetMember = members[targetIndex];
+        if (!targetMember || !targetMember.url) {
+          throw new Error('Target destination has invalid URL.');
+        }
+
+        statusEl.textContent = `Redirecting to ${targetMember.name}...`;
+        targetEl.style.display = 'block';
+        targetEl.textContent = targetMember.url;
+        btnEl.style.display = 'inline-block';
+        btnEl.href = targetMember.url;
+        btnEl.textContent = `Click here if not redirected`;
+
+        window.location.replace(targetMember.url);
+
+      } catch (err) {
+        statusEl.textContent = 'Webring Route Error: ' + (err.message || 'Unknown error');
+        btnEl.style.display = 'inline-block';
+        btnEl.href = '../index.html';
+        btnEl.textContent = 'Return to Edge Ring Directory';
+      }
+    })();
+  </script>
+</body>
+</html>

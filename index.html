@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edge Ring - Minimal Webring</title>
+  <meta name="description" content="A minimal, hacker-news styled static webring for independent websites.">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 10pt;
+      background-color: #f6f6ef;
+      color: #222;
+      line-height: 1.4;
+      padding: 0;
+      margin: 0;
+    }
+
+    a {
+      color: #000;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      width: 85%;
+      max-width: 900px;
+      margin: 10px auto;
+      background-color: #f6f6ef;
+    }
+
+    /* HN Header Bar */
+    header {
+      background-color: #ff6600;
+      padding: 3px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10pt;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hn-logo {
+      border: 1px solid #fff;
+      color: #fff;
+      font-weight: bold;
+      padding: 1px 5px;
+      font-size: 9pt;
+      line-height: 1;
+    }
+
+    .site-title {
+      font-weight: bold;
+      color: #222;
+    }
+
+    .nav-links {
+      color: #222;
+      font-size: 9pt;
+    }
+
+    .nav-links a {
+      color: #222;
+    }
+
+    .header-right {
+      font-size: 9pt;
+      color: #222;
+    }
+
+    /* Main Sections */
+    main {
+      padding: 12px 8px;
+    }
+
+    .section-title {
+      background-color: #e6e6df;
+      padding: 4px 8px;
+      font-weight: bold;
+      font-size: 9.5pt;
+      margin-top: 16px;
+      margin-bottom: 10px;
+      color: #333;
+      border-left: 3px solid #ff6600;
+    }
+
+    /* Directory Table / List */
+    .member-list {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .member-item {
+      padding: 6px 0;
+      border-bottom: 1px dashed #e0e0d8;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .member-main {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .member-num {
+      color: #828282;
+      font-size: 9pt;
+      min-width: 20px;
+    }
+
+    .member-title {
+      font-size: 10pt;
+      font-weight: bold;
+    }
+
+    .member-url {
+      color: #828282;
+      font-size: 8.5pt;
+    }
+
+    .member-id-tag {
+      font-family: monospace;
+      font-size: 8pt;
+      color: #666;
+      background: #eaeaea;
+      padding: 0 4px;
+      border-radius: 2px;
+    }
+
+    .member-actions {
+      font-size: 8.5pt;
+      color: #828282;
+    }
+
+    .member-actions a {
+      color: #828282;
+    }
+
+    .member-actions a:hover {
+      color: #ff6600;
+    }
+
+    /* Filter & Controls */
+    .search-input {
+      font-family: Verdana, sans-serif;
+      font-size: 9pt;
+      padding: 3px 6px;
+      border: 1px solid #ccc;
+      background: #fff;
+      width: 250px;
+      margin-bottom: 10px;
+    }
+
+    /* Widget Builder */
+    .widget-box {
+      background: #fff;
+      border: 1px solid #dcdcd0;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .form-row {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 9pt;
+    }
+
+    label {
+      font-weight: bold;
+      min-width: 110px;
+    }
+
+    select, input[type="text"] {
+      font-family: Verdana, sans-serif;
+      font-size: 9pt;
+      padding: 3px 6px;
+      border: 1px solid #ccc;
+    }
+
+    .preview-container {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f6f6ef;
+      border: 1px dashed #ccc;
+    }
+
+    pre, code {
+      font-family: monospace;
+      font-size: 8.5pt;
+      background: #f0f0e8;
+      padding: 8px;
+      display: block;
+      border: 1px solid #d0d0c4;
+      white-space: pre-wrap;
+      word-break: break-all;
+      position: relative;
+    }
+
+    .copy-btn {
+      font-family: Verdana, sans-serif;
+      font-size: 8pt;
+      background: #ff6600;
+      color: #fff;
+      border: none;
+      padding: 2px 8px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .copy-btn:hover {
+      background: #e65c00;
+    }
+
+    /* Instructions */
+    ol.join-steps {
+      padding-left: 20px;
+      font-size: 9.5pt;
+      line-height: 1.6;
+    }
+
+    ol.join-steps li {
+      margin-bottom: 8px;
+    }
+
+    footer {
+      border-top: 2px solid #ff6600;
+      margin-top: 30px;
+      padding: 12px 0;
+      text-align: center;
+      font-size: 8.5pt;
+      color: #828282;
+    }
+
+    footer a {
+      color: #828282;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="header-left">
+        <span class="hn-logo">E</span>
+        <span class="site-title">Edge Ring</span>
+        <span class="nav-links">
+          | <a href="#directory">directory</a> 
+          | <a href="#widget">widget</a> 
+          | <a href="#join">join</a>
+        </span>
+      </div>
+      <div class="header-right">
+        <span id="member-count">0 members</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- Directory -->
+      <div id="directory">
+        <div class="section-title">Directory</div>
+        <div style="margin-bottom: 8px;">
+          <input type="text" id="search" class="search-input" placeholder="filter members...">
+        </div>
+        <ol class="member-list" id="member-list">
+          <!-- Rendered via JS -->
+        </ol>
+      </div>
+
+      <!-- Widget Generator -->
+      <div id="widget">
+        <div class="section-title">Embed Widget</div>
+        <p style="font-size: 9pt; color: #555; margin-bottom: 8px;">
+          Choose your member ID and style to generate code for your site.
+        </p>
+
+        <div class="widget-box">
+          <div class="form-row">
+            <label for="member-select">Member ID:</label>
+            <select id="member-select"></select>
+          </div>
+
+          <div class="form-row">
+            <label for="style-select">Widget Style:</label>
+            <select id="style-select">
+              <option value="hn">Hacker News Style (Script)</option>
+              <option value="dark">Dark Theme (Script)</option>
+              <option value="minimal">Minimal Text (Script)</option>
+              <option value="html">Plain HTML (No JS)</option>
+            </select>
+          </div>
+
+          <div style="font-size: 8.5pt; font-weight: bold; margin-top: 10px; color: #444;">Preview:</div>
+          <div class="preview-container" id="widget-preview"></div>
+
+          <div style="font-size: 8.5pt; font-weight: bold; margin-top: 10px; color: #444;">Code:</div>
+          <pre><code id="code-snippet">Loading...</code></pre>
+          <button class="copy-btn" id="copy-btn">Copy Code</button>
+        </div>
+      </div>
+
+      <!-- How to Join -->
+      <div id="join">
+        <div class="section-title">How to Join</div>
+        <ol class="join-steps">
+          <li>Fork the repository on GitHub: <a href="https://github.com/pixel-87/edge-ring" target="_blank" style="text-decoration: underline;">pixel-87/edge-ring</a></li>
+          <li>Add your entry to <code>members.json</code>:
+            <pre style="margin-top: 4px; display: inline-block;">
+{
+  "id": "your-id",
+  "name": "Your Site Name",
+  "url": "https://your-site.com"
+}</pre>
+          </li>
+          <li>Add the widget snippet to your site.</li>
+          <li>Open a Pull Request. Once merged, your site is active in the ring!</li>
+        </ol>
+      </div>
+    </main>
+
+    <footer>
+      <a href="https://github.com/pixel-87/edge-ring" target="_blank">GitHub Repo</a> | 
+      Static Webring Powered by GitHub Pages
+    </footer>
+  </div>
+
+  <script>
+    let members = [];
+    const getBaseUrl = () => window.location.origin + window.location.pathname.replace(/\/index\.html$/, '').replace(/\/$/, '');
+
+    async function loadMembers() {
+      try {
+        const res = await fetch('./members.json');
+        members = await res.json();
+      } catch(e) {
+        members = [];
+      }
+      document.getElementById('member-count').textContent = `${members.length} members`;
+      renderList(members);
+      populateSelect(members);
+      updateWidget();
+    }
+
+    function renderList(list) {
+      const container = document.getElementById('member-list');
+      if (!list.length) {
+        container.innerHTML = `<li style="color: #828282; font-size: 9pt;">No matching members found.</li>`;
+        return;
+      }
+
+      container.innerHTML = list.map((m, idx) => `
+        <li class="member-item">
+          <div class="member-main">
+            <span class="member-num">${idx + 1}.</span>
+            <a href="${escapeHtml(m.url)}" target="_blank" class="member-title">${escapeHtml(m.name)}</a>
+            <span class="member-url">(${escapeHtml(m.url)})</span>
+            <span class="member-id-tag">${escapeHtml(m.id)}</span>
+          </div>
+          <div class="member-actions">
+            [<a href="./go/?member=${encodeURIComponent(m.id)}&dir=prev">prev</a>]
+            [<a href="./go/?member=${encodeURIComponent(m.id)}&dir=random">random</a>]
+            [<a href="./go/?member=${encodeURIComponent(m.id)}&dir=next">next</a>]
+          </div>
+        </li>
+      `).join('');
+    }
+
+    function populateSelect(list) {
+      const select = document.getElementById('member-select');
+      select.innerHTML = list.map(m => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)} (${escapeHtml(m.id)})</option>`).join('');
+    }
+
+    function updateWidget() {
+      const memberId = document.getElementById('member-select').value || 'ed';
+      const style = document.getElementById('style-select').value;
+      const baseUrl = getBaseUrl();
+
+      let snippet = '';
+      let previewHtml = '';
+
+      if (style === 'html') {
+        snippet = `<div class="edge-ring">
+  [<a href="${baseUrl}/go/?member=${memberId}&dir=prev">prev</a>]
+  [<a href="${baseUrl}/">edge-ring</a>]
+  [<a href="${baseUrl}/go/?member=${memberId}&dir=random">random</a>]
+  [<a href="${baseUrl}/go/?member=${memberId}&dir=next">next</a>]
+</div>`;
+        previewHtml = `<div style="font-family: Verdana, sans-serif; font-size: 9pt; color: #222;">
+          [<a href="${baseUrl}/go/?member=${memberId}&dir=prev" style="color: #000;">prev</a>]
+          [<a href="${baseUrl}/" style="color: #ff6600; font-weight: bold;">edge-ring</a>]
+          [<a href="${baseUrl}/go/?member=${memberId}&dir=random" style="color: #000;">random</a>]
+          [<a href="${baseUrl}/go/?member=${memberId}&dir=next" style="color: #000;">next</a>]
+        </div>`;
+      } else {
+        snippet = `<script src="${baseUrl}/embed.js" data-member="${memberId}" data-theme="${style}"><\/script>`;
+
+        let bg = '#f6f6ef';
+        let fg = '#222';
+        let border = '#dcdcd0';
+        if (style === 'dark') {
+          bg = '#1a1a1a';
+          fg = '#eee';
+          border = '#333';
+        } else if (style === 'minimal') {
+          bg = 'transparent';
+          border = 'transparent';
+        }
+
+        previewHtml = `<div style="font-family: Verdana, sans-serif; font-size: 9pt; background: ${bg}; color: ${fg}; border: 1px solid ${border}; padding: 3px 8px; display: inline-flex; align-items: center; gap: 6px;">
+          <a href="${baseUrl}/go/?member=${memberId}&dir=prev" style="color: ${fg}; text-decoration: none;">[prev]</a>
+          <a href="${baseUrl}/" style="color: #ff6600; font-weight: bold; text-decoration: none;">⚡ edge-ring</a>
+          <a href="${baseUrl}/go/?member=${memberId}&dir=random" style="color: ${fg}; text-decoration: none;">[random]</a>
+          <a href="${baseUrl}/go/?member=${memberId}&dir=next" style="color: ${fg}; text-decoration: none;">[next]</a>
+        </div>`;
+      }
+
+      document.getElementById('code-snippet').textContent = snippet;
+      document.getElementById('widget-preview').innerHTML = previewHtml;
+    }
+
+    document.getElementById('search').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = members.filter(m => 
+        m.name.toLowerCase().includes(query) || m.id.toLowerCase().includes(query) || m.url.toLowerCase().includes(query)
+      );
+      renderList(filtered);
+    });
+
+    document.getElementById('member-select').addEventListener('change', updateWidgetProtocol);
+    document.getElementById('style-select').addEventListener('change', updateWidgetProtocol);
+
+    function updateWidgetProtocol() {
+      updateWidget();
+    }
+
+    document.getElementById('copy-btn').addEventListener('click', () => {
+      const code = document.getElementById('code-snippet').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy Code', 1500);
+      });
+    });
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    loadMembers();
+  </script>
+</body>
+</html>
