@@ -74,7 +74,7 @@
     <style>${styles}</style>
     <div class="ring-box">
       <a href="${goUrl('prev')}" class="ring-btn" title="Previous member">[prev]</a>
-      <a href="${homeUrl}" class="ring-brand" target="_blank" rel="noopener">⚡ edge-ring</a>
+      <a href="${homeUrl}" class="ring-brand" target="_blank" rel="noopener">edge-ring</a>
       <a href="${goUrl('random')}" class="ring-btn" title="Random member">[random]</a>
       <a href="${goUrl('next')}" class="ring-btn" title="Next member">[next]</a>
     </div>
